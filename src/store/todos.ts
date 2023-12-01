@@ -22,6 +22,10 @@ interface Filter {
 interface CreateTodoPayload {
   title: string
 }
+interface ReorderTodosPayload {
+  oldIndex: number
+  newIndex: number
+}
 
 const filters: Filters = [
   { label: '전체', name: 'all' },
@@ -119,6 +123,19 @@ export const useTodosStore = defineStore('todos', {
       } catch (error) {
         console.error('deletedDoneTodos:', error)
       }
+    },
+    reorderTodos({ oldIndex, newIndex }: ReorderTodosPayload) {
+      if (oldIndex === newIndex) return
+      const movedTodo = this.todos.splice(oldIndex, 1)[0]
+      this.todos.splice(newIndex, 0, movedTodo)
+      const todoIds = this.todos.map((todo) => todo.id)
+      axios.post('/api/todos', {
+        method: 'PUT',
+        path: 'reorder',
+        data: {
+          todoIds
+        }
+      })
     }
   }
 })
