@@ -41,6 +41,7 @@ async function createTodo(event: MouseEvent | KeyboardEvent) {
 .todo-creator {
   height: var(--item-height);
   position: relative;
+  margin-bottom: 30px;
   :deep(.the-icon) {
     position: absolute;
     top: 0;

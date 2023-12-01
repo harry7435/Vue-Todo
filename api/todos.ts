@@ -13,7 +13,7 @@ interface RequestBody {
 export default async function (req: VercelRequest, res: VercelResponse) {
   const { path = '', method = 'GET', data } = req.body as Partial<RequestBody>
   const { data: responseValue } = await axios({
-    url: `https://asia-northeast3-heropy-api.cloudfunctions.net/api/todos${path}`,
+    url: `https://asia-northeast3-heropy-api.cloudfunctions.net/api/todos/${path}`,
     method,
     headers: {
       'Content-Type': 'application/json',
