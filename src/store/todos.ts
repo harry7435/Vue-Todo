@@ -12,15 +12,44 @@ export interface Todo {
   updatedAt: string // 할 일 수정일
 }
 
+type FilterStatus = 'all' | 'todo' | 'done'
+type Filters = Filter[]
+interface Filter {
+  label: string
+  name: FilterStatus
+}
+
 interface CreateTodoPayload {
   title: string
 }
 
+const filters: Filters = [
+  { label: '전체', name: 'all' },
+  { label: '할 일만', name: 'todo' },
+  { label: '완료만', name: 'done' }
+]
+
 export const useTodosStore = defineStore('todos', {
   state: () => ({
-    todos: [] as Todos
+    todos: [] as Todos,
+    filterStatus: 'all' as FilterStatus,
+    filters
   }),
-  getters: {},
+  getters: {
+    filteredTodos(state) {
+      return state.todos.filter((todo) => {
+        switch (state.filterStatus) {
+          case 'todo':
+            return !todo.done
+          case 'done':
+            return todo.done
+          case 'all':
+          default:
+            return true
+        }
+      })
+    }
+  },
   actions: {
     async fetchTodos() {
       const { data } = await axios.post('/api/todos', {
@@ -69,6 +98,27 @@ export const useTodosStore = defineStore('todos', {
           done
         })
       })
+    },
+    async deleteDoneTodos() {
+      const todoIds = this.todos
+        .filter((todo) => todo.done)
+        .map((todo) => todo.id)
+
+      if (!todoIds.length) return
+
+      try {
+        await axios.post('/api/todos', {
+          method: 'DELETE',
+          path: 'deletions',
+          data: {
+            todoIds
+          }
+        })
+
+        this.todos = this.todos.filter((todo) => !todoIds.includes(todo.id))
+      } catch (error) {
+        console.error('deletedDoneTodos:', error)
+      }
     }
   }
 })
