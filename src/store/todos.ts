@@ -61,6 +61,14 @@ export const useTodosStore = defineStore('todos', {
         console.error('udpateTodo:', error)
         Object.assign(foundTodo, backedUpTodo)
       }
+    },
+    updateCheckboxes(done: boolean) {
+      this.todos.forEach((todo) => {
+        this.updateTodo({
+          ...todo,
+          done
+        })
+      })
     }
   }
 })
