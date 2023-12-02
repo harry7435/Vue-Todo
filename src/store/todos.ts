@@ -22,6 +22,9 @@ interface Filter {
 interface CreateTodoPayload {
   title: string
 }
+interface DeleteTodoPayload {
+  id: string
+}
 interface ReorderTodosPayload {
   oldIndex: number
   newIndex: number
@@ -33,11 +36,21 @@ const filters: Filters = [
   { label: '완료만', name: 'done' }
 ]
 
+const currentTodo: Todo = {
+  id: '',
+  order: 0,
+  title: '',
+  done: false,
+  createdAt: '',
+  updatedAt: ''
+}
+
 export const useTodosStore = defineStore('todos', {
   state: () => ({
     todos: [] as Todos,
     filterStatus: 'all' as FilterStatus,
-    filters
+    filters,
+    currentTodo
   }),
   getters: {
     filteredTodos(state) {
@@ -90,6 +103,7 @@ export const useTodosStore = defineStore('todos', {
             done
           }
         })
+        foundTodo.updatedAt = updatedTodo.updatedAt
       } catch (error) {
         console.error('udpateTodo:', error)
         Object.assign(foundTodo, backedUpTodo)
@@ -102,6 +116,17 @@ export const useTodosStore = defineStore('todos', {
           done
         })
       })
+    },
+    async deleteTodo({ id }: DeleteTodoPayload) {
+      try {
+        await axios.post('/api/todos', {
+          method: 'DELETE',
+          path: id
+        })
+        this.todos = this.todos.filter((todo) => todo.id !== id)
+      } catch (error) {
+        console.error('deleteTodo:', error)
+      }
     },
     async deleteDoneTodos() {
       const todoIds = this.todos

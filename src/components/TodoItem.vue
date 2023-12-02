@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useRouter } from 'vue-router'
 import { useTodosStore } from '~/store/todos'
 import type { Todo } from '~/store/todos'
 import TheIcon from '~/components/TheIcon.vue'
@@ -9,6 +10,7 @@ const props = defineProps<{
 }>()
 
 const todosStore = useTodosStore()
+const router = useRouter()
 
 const done = computed({
   get() {
@@ -25,6 +27,10 @@ const done = computed({
 function toggleDone() {
   done.value = !done.value
 }
+function onTodoModal() {
+  todosStore.currentTodo = { ...props.todo }
+  router.push(`/${props.todo.id}`)
+}
 </script>
 
 <template>
@@ -34,7 +40,9 @@ function toggleDone() {
       @click="toggleDone">
       check
     </TheIcon>
-    <div class="title">
+    <div
+      class="title"
+      @click="onTodoModal">
       {{ todo.title }}
     </div>
     <div class="drag-handle">
